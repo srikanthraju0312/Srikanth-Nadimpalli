@@ -272,7 +272,13 @@
 
       if (isBlack && isMedium && finalBundleId) {
         // Shopify API strictly expects the ID to be numeric
-        itemsToAdd.push({ id: Number(finalBundleId), quantity: 1 });
+        itemsToAdd.push({ 
+          id: Number(finalBundleId), 
+          quantity: 1,
+          properties: {
+            '_is_free_gift': 'true'
+          }
+        });
         if(status) {
           status.innerText = 'Bonus added: Soft Winter Jacket! ';
           status.style.color = '#2ecc71';
