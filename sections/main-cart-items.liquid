@@ -110,7 +110,19 @@
 
                       <a href="{{ item.url }}" class="cart-item__name h4 break">{{ item.product.title | escape }}</a>
 
-                      {%- if item.original_price != item.final_price -%}
+                      {%- assign is_free_gift = false -%}
+                      {%- for property in item.properties -%}
+                        {%- if property.first == '_is_free_gift' and property.last == 'true' -%}
+                          {%- assign is_free_gift = true -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if is_free_gift -%}
+                        <div class="product-option">
+                          <s class="cart-item__old-price">{{ item.original_price | money }}</s>
+                          <strong class="cart-item__final-price">Free</strong>
+                        </div>
+                      {%- elsif item.original_price != item.final_price -%}
                         <div class="cart-item__discounted-prices">
                           <span class="visually-hidden">
                             {{ 'products.product.price.regular_price' | t }}
@@ -180,7 +192,12 @@
                     <td class="cart-item__totals right medium-hide large-up-hide">
                       {%- render 'loading-spinner' -%}
                       <div class="cart-item__price-wrapper">
-                        {%- if item.original_line_price != item.final_line_price -%}
+                        {%- if is_free_gift -%}
+                          <span class="price price--end">
+                            <s class="cart-item__old-price">{{ item.original_line_price | money }}</s>
+                            <strong>Free</strong>
+                          </span>
+                        {%- elsif item.original_line_price != item.final_line_price -%}
                           <dl class="cart-item__discounted-prices">
                             <dt class="visually-hidden">
                               {{ 'products.product.price.regular_price' | t }}
@@ -407,7 +424,12 @@
                     <td class="cart-item__totals right small-hide">
                       {%- render 'loading-spinner' -%}
                       <div class="cart-item__price-wrapper">
-                        {%- if item.original_line_price != item.final_line_price -%}
+                        {%- if is_free_gift -%}
+                          <span class="price price--end">
+                            <s class="cart-item__old-price">{{ item.original_line_price | money }}</s>
+                            <strong>Free</strong>
+                          </span>
+                        {%- elsif item.original_line_price != item.final_line_price -%}
                           <dl class="cart-item__discounted-prices">
                             <dt class="visually-hidden">
                               {{ 'products.product.price.regular_price' | t }}

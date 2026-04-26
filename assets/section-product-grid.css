@@ -377,3 +377,112 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Extracted JS Inline Styles */
+.color-field label, .size-field label {
+  font-family: 'Jost', sans-serif !important;
+  font-size: 14px;
+  line-height: 130%;
+  color: #333333;
+  text-transform: capitalize;
+}
+
+.color-options-container {
+  display: flex;
+  width: 271px;
+  height: 40.44px;
+  border: 0.5px solid #000000;
+  box-sizing: border-box;
+}
+
+.color-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+  cursor: pointer;
+}
+
+.color-option-border {
+  border-right: 0.5px solid #000000;
+}
+
+.color-option-text {
+  font-family: 'Jost', sans-serif !important;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: -2%;
+  text-transform: capitalize;
+}
+
+.custom-dropdown {
+  position: relative;
+  width: 271px;
+}
+
+.custom-dropdown-header {
+  width: 100%;
+  height: 40.44px;
+  border: 0.5px solid #000000;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  cursor: pointer;
+  background: #fff;
+}
+
+.custom-dropdown-header .selected-value {
+  flex: 1;
+  padding-left: 15px;
+  display: flex;
+  align-items: center;
+  font-family: 'Jost', sans-serif !important;
+  font-size: 16px;
+  color: #000000;
+  text-transform: none;
+}
+
+.custom-dropdown-header .icon-container {
+  width: 55px;
+  border-left: 0.5px solid #000000;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.custom-dropdown-options {
+  display: none;
+  position: absolute;
+  top: 40.44px;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 0.5px solid #000000;
+  border-top: none;
+  background: #fff;
+  z-index: 10;
+}
+
+.custom-dropdown-option {
+  padding: 10px 0;
+  text-align: center;
+  font-family: 'Jost', sans-serif !important;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.popup-status {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  font-family: 'Jost', sans-serif !important;
+  min-height: 20px;
+}
+
+.popup-error-message {
+  text-align: center;
+}
+
