@@ -1,0 +1,410 @@
+{% comment %}
+  Product Grid with Hotspots and Bundle Logic
+  Requirements: 6-item grid, Hotspots, Product Popup via fetch, Bundle logic for Black + Medium.
+{% endcomment %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lustria&display=swap" rel="stylesheet">
+
+{{ 'section-product-grid.css' | asset_url | stylesheet_tag }}
+
+<section class="product-grid-popup">
+  <div class="product-grid-popup__container">
+    {%- if section.settings.title != blank -%}
+      <h2 class="product-grid-popup__heading">{{ section.settings.title | escape }}</h2>
+    {%- endif -%}
+
+    <div class="product-grid">
+      {%- for block in section.blocks -%}
+        <div class="grid-item" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            {{ block.settings.image | image_url: width: 800 | image_tag: loading: 'lazy' }}
+          {%- elsif block.settings.product.featured_image != blank -%}
+            {{ block.settings.product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy' }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag }}
+          {%- endif -%}
+          
+          {%- if block.settings.product != blank -%}
+            <button class="hotspot" 
+                    style="top: {{ block.settings.hotspot_y }}%; left: {{ block.settings.hotspot_x }}%;"
+                    data-handle="{{ block.settings.product.handle }}"
+                    aria-label="View {{ block.settings.product.title }}">
+              <img src="{{ 'plus.svg' | asset_url }}" alt="" width="12" height="12">
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<!-- Product Popup Modal -->
+<div id="ProductModal-{{ section.id }}" class="product-popup-overlay">
+  <div class="product-popup">
+    <button class="product-popup__close" aria-label="Close">&times;</button>
+    <div class="product-popup__content">
+      <!-- Injected by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const modal = document.getElementById('ProductModal-{{ section.id }}');
+    const content = modal.querySelector('.product-popup__content');
+    const closeBtn = modal.querySelector('.product-popup__close');
+    const bundleId = '{{ section.settings.bundle_id | escape }}'; // Soft Winter Jacket ID
+
+    // Currency Formatter
+    const formatPrice = (cents) => {
+      const amount = (cents / 100).toFixed(2);
+      const symbol = window.Shopify?.currency?.symbol || '$';
+      return `${symbol}${amount}`;
+    };
+
+    const hotspots = document.querySelectorAll('.hotspot[data-handle]');
+    hotspots.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const handle = btn.dataset.handle;
+        openModal(handle);
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    async function openModal(handle) {
+      modal.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+      content.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+      try {
+        const response = await fetch(`/products/${handle}.js`);
+        const product = await response.json();
+        renderPopup(product);
+      } catch (err) {
+        content.innerHTML = '<p style="text-align:center;">Failed to load product details. Please try again later.</p>';
+      }
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-active');
+      document.body.style.overflow = '';
+    }
+
+    window.selectColorOption = function(element, val) {
+      const container = element.closest('.color-options-container');
+      const options = container.querySelectorAll('.color-option');
+      options.forEach(o => {
+        o.style.backgroundColor = '#ffffff';
+        o.querySelector('.color-option-text').style.color = '#000000';
+      });
+      element.style.backgroundColor = '#000000';
+      element.querySelector('.color-option-text').style.color = '#ffffff';
+      
+      const select = container.nextElementSibling;
+      if(select && select.tagName === 'SELECT') {
+        select.value = val;
+        select.dispatchEvent(new Event('change'));
+      }
+    };
+
+    function renderPopup(product) {
+      const rightArrowUrl = "{{ 'right_arrow.svg' | asset_url }}";
+      const caretUrl = "{{ 'icon-caret.svg' | asset_url }}";
+      
+      const colorOption = product.options.find(opt => opt.name.toLowerCase().includes('color'));
+      const sizeOption = product.options.find(opt => opt.name.toLowerCase().includes('size'));
+
+      const colorHtml = colorOption ? `
+        <div class="variant-field color-field">
+          <label style="font-family: 'Jost', sans-serif; font-size: 14px; line-height: 130%; color: #333333; text-transform: capitalize;">Color</label>
+          <div class="color-options-container" style="display: flex; width: 271px; height: 40.44px; border: 0.5px solid #000000; box-sizing: border-box;">
+            ${colorOption.values.map((val, index) => {
+              const cleanVal = val.toLowerCase().trim();
+              const bg = cleanVal === 'black' ? '#000000' : 
+                         (cleanVal === 'white' ? '#ffffff' : 
+                         (cleanVal === 'blue' ? '#0055ff' : 
+                         (cleanVal === 'red' ? '#ff0000' : 
+                         (cleanVal === 'grey' || cleanVal === 'gray' ? '#808080' : cleanVal))));
+              const isSelected = false; // Start all unselected (white)
+              const borderRight = (index < colorOption.values.length - 1) ? 'border-right: 0.5px solid #000000;' : '';
+              const textColor = isSelected ? '#ffffff' : '#000000';
+              const boxBg = isSelected ? '#000000' : '#ffffff';
+              
+              const colorStripShadow = `inset 5.807px 0 0 0 ${bg}, inset 6.307px 0 0 0 #000000`;
+              
+              return `
+                <div class="color-option" data-value="${val}" style="flex: 1; display: flex; align-items: center; padding-left: 15px; cursor: pointer; background-color: ${boxBg}; box-shadow: ${colorStripShadow}; ${borderRight}" onclick="selectColorOption(this, '${val}')">
+                  <span class="color-option-text" style="font-family: 'Jost', sans-serif; font-size: 18px; line-height: 100%; letter-spacing: -2%; color: ${textColor}; text-transform: capitalize;">${val}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <select id="Option-Color" class="variant-select" data-index="${colorOption.position - 1}" style="display:none;">
+            ${colorOption.values.map(val => `<option value="${val}">${val}</option>`).join('')}
+          </select>
+        </div>
+      ` : '';
+
+      const sizeHtml = sizeOption ? `
+        <div class="variant-field size-field">
+          <label style="font-family: 'Jost', sans-serif; font-size: 14px; line-height: 130%; color: #333333; text-transform: capitalize;">Size</label>
+          <div class="custom-dropdown" id="SizeDropdown" style="position: relative; width: 271px;">
+            <div class="custom-dropdown-header" style="width: 100%; height: 40.44px; border: 0.5px solid #000000; box-sizing: border-box; display: flex; align-items: stretch; cursor: pointer; background: #fff;">
+              <span class="selected-value" id="SizeSelectedValue" style="flex: 1; padding-left: 15px; display: flex; align-items: center; font-family: 'Jost', sans-serif; font-size: 16px; color: #000000; text-transform: none;">Choose your size</span>
+              <div style="width: 55px; border-left: 0.5px solid #000000; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" id="SizeChevronSVG" style="transition: transform 0.3s ease;">
+                  <path d="M1 1L6 6L11 1" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="custom-dropdown-options" id="SizeOptions" style="display: none; position: absolute; top: 40.44px; left: 0; width: 100%; max-height: 200px; overflow-y: auto; border: 0.5px solid #000000; border-top: none; background: #fff; z-index: 10;">
+              ${sizeOption.values.map(val => `
+                <div class="custom-dropdown-option" data-value="${val}" style="padding: 10px 0; text-align: center; font-family: 'Jost', sans-serif; font-size: 16px; cursor: pointer;">${val}</div>
+              `).join('')}
+            </div>
+          </div>
+          <select id="Option-Size" class="variant-select" data-index="${sizeOption.position - 1}" style="display:none;">
+            ${sizeOption.values.map(val => `<option value="${val}">${val}</option>`).join('')}
+          </select>
+        </div>
+      ` : '';
+
+      content.innerHTML = `
+        <div class="popup-image-container">
+          <img src="${product.featured_image}" class="popup-image" alt="${product.title}">
+        </div>
+        <h3 class="popup-title">${product.title}</h3>
+        <p class="popup-price">${formatPrice(product.price)}</p>
+        <div class="popup-description">${product.description.replace(/<[^>]*>?/gm, '').substring(0, 100)}...</div>
+        
+        <div class="popup-selectors">
+          ${colorHtml}
+          ${sizeHtml}
+        </div>
+        
+        <button class="popup-add-btn" id="PopupAddToCart">
+          ADD TO CART
+          <img src="${rightArrowUrl}" alt="">
+        </button>
+        <div id="PopupStatus" style="text-align: center; margin-top: 10px; font-size: 14px; font-family: 'Jost', sans-serif; color: #ff0000; min-height: 20px;"></div>
+      `;
+
+      // Size dropdown logic
+      const sizeDropdownHeader = content.querySelector('.custom-dropdown-header');
+      const sizeOptionsContainer = content.querySelector('#SizeOptions');
+      const sizeChevronSVG = content.querySelector('#SizeChevronSVG');
+      const sizeSelectedValue = content.querySelector('#SizeSelectedValue');
+      const sizeSelect = content.querySelector('#Option-Size');
+      const sizeOptionDivs = content.querySelectorAll('.custom-dropdown-option');
+
+      if(sizeDropdownHeader) {
+        sizeDropdownHeader.addEventListener('click', () => {
+          const isOpen = sizeOptionsContainer.style.display === 'block';
+          sizeOptionsContainer.style.display = isOpen ? 'none' : 'block';
+          if(isOpen) {
+            sizeChevronSVG.style.transform = 'rotate(0deg)';
+          } else {
+            sizeChevronSVG.style.transform = 'rotate(180deg)';
+          }
+        });
+
+        sizeOptionDivs.forEach(opt => {
+          opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const val = opt.dataset.value;
+            sizeSelectedValue.innerText = val;
+            sizeOptionsContainer.style.display = 'none';
+            sizeChevronSVG.style.transform = 'rotate(0deg)';
+            if(sizeSelect) {
+              sizeSelect.value = val;
+              sizeSelect.dispatchEvent(new Event('change'));
+            }
+          });
+        });
+      }
+
+      const addBtn = document.getElementById('PopupAddToCart');
+      addBtn.addEventListener('click', () => handleAddToCart(product));
+    }
+
+    async function handleAddToCart(product) {
+      const modal = document.getElementById(`ProductModal-{{ section.id }}`);
+      const addBtn = modal.querySelector('#PopupAddToCart');
+      const status = modal.querySelector('#PopupStatus');
+      const selects = modal.querySelectorAll('.variant-select');
+      
+      const variant = product.variants.find(v => {
+        return Array.from(selects).every(select => {
+          const optIndex = parseInt(select.dataset.index);
+          return v.options[optIndex] === select.value;
+        });
+      });
+
+      if (!variant) {
+        if(status) status.innerText = 'Variant unavailable';
+        return;
+      }
+
+      addBtn.disabled = true;
+      addBtn.innerText = 'Adding...';
+      if(status) status.innerText = '';
+
+      // Prepare items for AJAX API
+      const itemsToAdd = [{ id: variant.id, quantity: 1 }];
+
+      // BUNDLE LOGIC: If Black + Medium, add Soft Winter Jacket
+      const isBlack = Array.from(selects).some(s => s.value.toLowerCase().trim() === 'black');
+      const isMedium = Array.from(selects).some(s => {
+        const v = s.value.toLowerCase().trim();
+        return v === 'medium' || v === 'm';
+      });
+
+      let finalBundleId = bundleId ? bundleId.trim() : '47787199791244';
+      if (finalBundleId.includes('variants/')) {
+        finalBundleId = finalBundleId.split('variants/')[1].split(/[/?#]/)[0];
+      }
+
+      if (isBlack && isMedium && finalBundleId) {
+        // Shopify API strictly expects the ID to be numeric
+        itemsToAdd.push({ id: Number(finalBundleId), quantity: 1 });
+        if(status) {
+          status.innerText = 'Bonus added: Soft Winter Jacket! ';
+          status.style.color = '#2ecc71';
+        }
+      }
+
+      console.log('Adding to cart items:', itemsToAdd);
+
+      try {
+        const fetchUrl = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) ? window.Shopify.routes.root + 'cart/add.js' : '/cart/add.js';
+        const response = await fetch(fetchUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: itemsToAdd })
+        });
+
+        if (response.ok) {
+          addBtn.innerText = 'Added!';
+          if(status) {
+            status.innerText = 'Success! Items added to your cart.';
+            status.style.color = '#2ecc71';
+          }
+          setTimeout(() => {
+            closeModal();
+            window.location.href = '/cart';
+          }, 1000);
+        } else {
+          throw new Error('Failed to add');
+        }
+      } catch (err) {
+        console.error("Cart error:", err);
+        addBtn.disabled = false;
+        addBtn.innerText = 'ADD TO CART';
+        if(status) {
+          status.style.color = '#ff0000';
+          status.innerText = 'Error adding to cart. Try again.';
+        }
+      }
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product Grid Popup",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Heading",
+      "default": "Shop the Collection"
+    },
+    {
+      "type": "text",
+      "id": "bundle_id",
+      "label": "Soft Winter Jacket Variant ID",
+      "info": "The variant ID to add when Black + Medium are selected.",
+      "default": "47787199791244"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "grid_item",
+      "name": "Grid Item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom Image",
+          "info": "Optional: Overrides product image"
+        },
+        {
+          "type": "range",
+          "id": "hotspot_x",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Hotspot X Position",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "hotspot_y",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Hotspot Y Position",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Grid Popup",
+      "blocks": [
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" },
+        { "type": "grid_item" }
+      ]
+    }
+  ]
+}
+{% endschema %}

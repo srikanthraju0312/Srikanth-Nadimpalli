@@ -1,0 +1,103 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+
+{{ 'section-gift-banner.css' | asset_url | stylesheet_tag }}
+
+<style>
+  .gift-guide-info-bar {
+    background-color: {{ section.settings.info_bar_bg_color }};
+  }
+
+  .gift-guide-info-bar__text {
+    color: {{ section.settings.info_bar_text_color }};
+  }
+</style>
+
+<section class="gift-guide-banner-new">
+  <img src="{{ 'hero_banner1.svg' | asset_url }}" alt="" class="banner-img-1">
+  <img src="{{ 'hero_banner2.svg' | asset_url }}" alt="" class="banner-img-2">
+
+  <div class="banner-content">
+    <h1 class="banner-title">{{ section.settings.title }}</h1>
+    <div class="banner-text">
+      <span class="banner-text-desktop">{{ section.settings.text }}</span>
+      <span class="banner-text-mobile">Discover Joy: Your Ultimate Holiday Gift Destination.</span>
+    </div>
+    <a href="{{ section.settings.button_link }}" class="banner-button">
+      {{ section.settings.button_label }}
+      <img src="{{ 'right_arrow.svg' | asset_url }}" alt="" width="24" height="24">
+    </a>
+  </div>
+</section>
+
+<div class="gift-guide-info-bar">
+  <p class="gift-guide-info-bar__text">
+    <span class="info-bar-text-desktop">{{ section.settings.info_bar_text }}</span>
+    <span class="info-bar-text-mobile">{{ section.settings.info_bar_text_mobile }}</span>
+  </p>
+</div>
+
+{% schema %}
+{
+  "name": "Gift Guide Banner New",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "The Gift guide"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Subtext",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "SHOP NOW"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "header",
+      "content": "Info Bar Settings"
+    },
+    {
+      "type": "text",
+      "id": "info_bar_text",
+      "label": "Info Bar Text (Desktop)",
+      "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+    },
+    {
+      "type": "text",
+      "id": "info_bar_text_mobile",
+      "label": "Info Bar Text (Mobile)",
+      "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
+    },
+    {
+      "type": "color",
+      "id": "info_bar_bg_color",
+      "label": "Info Bar Background Color",
+      "default": "#F5F5F5"
+    },
+    {
+      "type": "color",
+      "id": "info_bar_text_color",
+      "label": "Info Bar Text Color",
+      "default": "#000000"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Guide Banner New"
+    }
+  ]
+}
+{% endschema %}
