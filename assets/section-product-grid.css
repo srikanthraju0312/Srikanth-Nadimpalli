@@ -1,0 +1,379 @@
+.product-grid-popup {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 0 60px;
+  box-sizing: border-box;
+}
+
+.product-grid-popup__container {
+  max-width: 1339px;
+  margin: 48px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.product-grid-popup__heading {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  font-family: 'Lustria', serif !important;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 36px;
+  line-height: 120%;
+  letter-spacing: 0px;
+  color: #000000;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+@media screen and (max-width: 989px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media screen and (max-width: 749px) {
+  .product-grid-popup {
+    padding: 0 16.5px;
+  }
+  .product-grid-popup__container {
+    max-width: 342px;
+    margin: 20px auto;
+    gap: 20px;
+  }
+  .product-grid-popup__heading {
+    width: 100%;
+    max-width: none;
+    height: 29px;
+    font-size: 24px;
+    margin: 0 auto;
+    text-align: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    width: 342px;
+  }
+  .grid-item {
+    aspect-ratio: 169 / 186.42;
+  }
+}
+
+.grid-item {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 433 / 444;
+  background: #f8f8f8;
+}
+
+.grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.grid-item:hover img {
+  transform: scale(1.08);
+}
+
+.hotspot {
+  position: absolute;
+  background: transparent;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  font-size: 0;
+  border: none;
+  outline: none;
+  padding: 0;
+}
+
+.hotspot img {
+  width: 22px;
+  height: 22px;
+}
+
+.hotspot:hover {
+  transform: scale(1.3);
+}
+
+/* Popup/Modal Styles */
+.product-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.product-popup-overlay.is-active {
+  display: flex;
+  opacity: 1;
+}
+
+.product-popup {
+  background: #ffffff;
+  width: 311px;
+  height: 447px;
+  border-radius: 0;
+  position: relative;
+  padding: 0;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  transform: translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  overflow: visible;
+}
+
+.product-popup-overlay.is-active .product-popup {
+  transform: translateY(0);
+}
+
+.product-popup__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  z-index: 100;
+}
+
+.popup-image-container {
+  position: absolute;
+  width: 120px;
+  height: 140px;
+  top: 36px;
+  left: 17px;
+  overflow: hidden;
+  background: #f4f4f4;
+}
+
+.popup-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.popup-title {
+  position: absolute;
+  width: 136px;
+  height: auto;
+  top: 49px;
+  left: 145px;
+  margin: 0;
+  font-family: 'Jost', sans-serif !important;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 120%;
+  color: #000000;
+  text-transform: capitalize;
+}
+
+.popup-price {
+  position: absolute;
+  width: 64px;
+  height: 19px;
+  top: 88px;
+  left: 145px;
+  margin: 0;
+  font-family: 'Lustria', serif !important;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 120%;
+  color: #000000;
+}
+
+.popup-description {
+  position: absolute;
+  width: 146px;
+  height: 60px;
+  top: 119px;
+  left: 145px;
+  margin: 0;
+  font-family: 'Jost', sans-serif !important;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 110%;
+  letter-spacing: -1%;
+  color: #000000;
+  overflow: hidden;
+}
+
+.popup-selectors {
+  position: absolute;
+  top: 186px;
+  left: 20px;
+  width: 271px;
+  display: flex;
+  flex-direction: column;
+  gap: 11.52px;
+}
+
+.variant-field {
+  width: 271px;
+  height: 64.48px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.variant-field label {
+  font-family: 'Jost', sans-serif !important;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 130%;
+  color: #333333;
+  text-transform: uppercase;
+}
+
+.custom-select {
+  position: relative;
+  width: 271px;
+  height: 40.44px;
+  border: 0.5px solid #000000;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.custom-select select {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.selected-value {
+  font-family: 'Jost', sans-serif !important;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: -2%;
+  color: #000000;
+  text-transform: capitalize;
+}
+
+.size-field .selected-value {
+  font-size: 16px;
+}
+
+.dropdown-chevron {
+  position: absolute;
+  width: 12px;
+  height: 6px;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.dropdown-chevron::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid #000000;
+  border-bottom: 1.5px solid #000000;
+  transform: rotate(45deg);
+  top: -4px;
+  right: 2px;
+  transition: transform 0.3s ease, top 0.3s ease;
+}
+
+.dropdown-chevron.is-open::after {
+  transform: rotate(225deg);
+  top: 0px;
+}
+
+.select-divider {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  top: 0;
+  right: 55px;
+  background: #000000;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.popup-add-btn {
+  position: absolute;
+  width: 271px;
+  height: 45px;
+  top: 377px;
+  left: 20px;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  font-family: 'Jost', sans-serif !important;
+  font-weight: 400;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.popup-add-btn img {
+  width: 24px;
+  filter: invert(1);
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
